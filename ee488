@@ -1,0 +1,72 @@
+.data
+    prompt:     .asciiz "Enter an integer: "
+    max_msg:    .asciiz "\nMaximum value: "
+    min_msg:    .asciiz "\nMinimum value: "
+
+.text
+.globl main
+
+main:
+    # Initialize max and min with the first input
+    li $v0, 4
+    la $a0, prompt
+    syscall
+
+    li $v0, 5
+    syscall
+    move $t0, $v0  # $t0 = max
+    move $t1, $v0  # $t1 = min
+
+    # Counter for loop
+    li $t2, 1
+
+loop:
+    # Check if we've read all 5 integers
+    beq $t2, 5, end_loop
+
+    # Prompt for next integer
+    li $v0, 4
+    la $a0, prompt
+    syscall
+
+    # Read integer
+    li $v0, 5
+    syscall
+    move $t3, $v0  # $t3 = current input
+
+    # Check if current > max
+    ble $t3, $t0, check_min
+    move $t0, $t3
+
+check_min:
+    # Check if current < min
+    bge $t3, $t1, continue
+    move $t1, $t3
+
+continue:
+    # Increment counter
+    addi $t2, $t2, 1
+    j loop
+
+end_loop:
+    # Print max value
+    li $v0, 4
+    la $a0, max_msg
+    syscall
+
+    li $v0, 1
+    move $a0, $t0
+    syscall
+
+    # Print min value
+    li $v0, 4
+    la $a0, min_msg
+    syscall
+
+    li $v0, 1
+    move $a0, $t1
+    syscall
+
+    # Exit program
+    li $v0, 10
+    syscall
